@@ -1,7 +1,8 @@
 /*
  * Created Feb 23, 2012
- * (C) 2012 Ben Iofel, David Maginley, and Princeton Ferro
+ * (C) 2012 Princeton Ferro
  * Made @ Monthly Music Hackathon in NYC
+ * Version 0.1
  */
 
 import java.util.*;
