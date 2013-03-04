@@ -1,3 +1,6 @@
+Hey Leap Motion, here's my music instrument
+Ben Iofel (iofelben@gmail.com)
+
 Leap Motion Instrument
 ======================
 
@@ -10,3 +13,4 @@ edit the native libraries. On Mac OS X select the LeapLibrary0.7.4/Mac/ folder.
 On Windows, select the LeapLibrary0.7.4/Windows/*your_architecture* folder. Now
 click finish. Then just import the two java files and run it alongside the Leap
 program for your OS (not provided).
+
