@@ -1,7 +1,3 @@
-Hey Leap Motion, here's my music instrument]
-
-- Ben Iofel (iofelben@gmail.com)
-
 Leap Motion Instrument
 ======================
 
