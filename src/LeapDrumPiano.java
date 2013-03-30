@@ -33,6 +33,8 @@ public class LeapDrumPiano {
 }
 
 class Lis extends Listener{
+	int octave = 4;
+	Instrument ins;
 	Finger finger;
 	Hand hand;
 	//	float maxX=0,maxY=0,maxZ=0,minX=0,minY=0,minZ=0;
@@ -40,14 +42,14 @@ class Lis extends Listener{
 	public Audio audio;
 
 	//	instrument X axis mapping vars
-	int xAxisMin = -100;
-	int xAxisMax = 100;
-	int numTapAreas = 4;
+	int xAxisMin = -200;
+	int xAxisMax = 200;
+	int numTapAreas = 7;
 	int tapAreaSize = (xAxisMax-xAxisMin)/numTapAreas;
-	int[] tapAreas = new int[numTapAreas];
+//	int[] tapAreas = new int[numTapAreas];
 	
 	
-	boolean drums = true; //false = piano
+	boolean drums = false; //false = piano
 
 	//overriding default listener methods
 	public void onInit(Controller controller){
@@ -57,9 +59,9 @@ class Lis extends Listener{
 	public void onConnect(Controller controller) {
 		System.out.println("LEAP Connected");
 		controller.enableGesture(Gesture.Type.TYPE_KEY_TAP); //enable only key tap gesture
-		for(int i=0;i<numTapAreas;i++){
-			tapAreas[i] = xAxisMin+(i*tapAreaSize);
-		}
+//		for(int i=0;i<numTapAreas;i++){
+//			tapAreas[i] = xAxisMin+(i*tapAreaSize);
+//		}
 	}
 
 	public void onFrame(Controller controller){
@@ -89,79 +91,69 @@ class Lis extends Listener{
 					curGes = ges.get(0);
 					float gesFinPosX = curGes.pointables().get(0).tipPosition().getX();
 					//					System.out.println(curGes.type() + " at x: " + gesFinPos.getX() + " y: " + gesFinPos.getY() + " z: " +gesFinPos.getZ());
-					for(int i=0;i<numTapAreas;i++) if(gesFinPosX>tapAreas[i] && gesFinPosX<=tapAreas[i]+tapAreaSize){
-						if(!drums){
+//					for(int i=0;i<numTapAreas;i++) if(gesFinPosX>tapAreas[i] && gesFinPosX<=tapAreas[i]+tapAreaSize){
+					int i = ((int)gesFinPosX + xAxisMax) / tapAreaSize;
+					if(!drums){
+						try{
+							int note = 0;
 							switch(i) {
-							//**********************PIANO**********************
-							case 0:	
-								audio.changeInstrument("Grand Piano");
-								try {
-									audio.playNote("C", 4, 1);
-								} catch (Exception e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
-								break;
-							case 1: 
-								audio.changeInstrument("Grand Piano");
-								try {
-									audio.playNote("D", 4, 1);
-								} catch (Exception e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
-								break;
-							case 2: 
-								audio.changeInstrument("Grand Piano");
-								try {
-									audio.playNote("E", 4, 1);
-								} catch (Exception e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
-								break;
-							case 3:
-								audio.changeInstrument("Grand Piano");
-								try {
-									audio.playNote("F", 4, 1);
-								} catch (Exception e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
-								break;
+							case 0: note = 0; break;	//C
+							case 1: note = 2; break;	//D
+							case 2: note = 4; break;	//E
+							case 3: note = 5; break;	//F
+							case 4: note = 7; break;	//G
+							case 5: note = 9; break;	//A
+							case 6: note = 11; break;	//B
 							}
-						} else {
-							//******************DRUMS*********************
-							switch(i){
-							case 0:	//kick
-								audio.changeInstrument("Kick");
-								audio.playDrum(1);
-								System.out.println("playing kick");
-								break;
-							case 1: //snare
-								audio.changeInstrument("Snare");
-								audio.playDrum(1);
-								System.out.println("playing snare");
-								break;
-							case 2: //hihat
-								audio.changeInstrument("HiHat");
-								audio.playDrum(1);
-								System.out.println("playing hihat");
-								break;
-							case 3: //crash
-								audio.changeInstrument("Crash");
-								audio.playDrum(1);
-								System.out.println("playing crash");
-								break;
-							}
+							ins = new Piano(1);
+							ins.playNote(note, octave);
+							System.out.println(i);
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					} else {
+						String drum = "";
+						switch(i) {
+						case 0:
+							drum = "Kick";
+							break;
+						case 1:
+							drum = "Snare";
+							break;
+						case 2:
+							drum = "HiHat";
+							break;
+						case 3:
+							drum = "Crash";
+							break;
+						case 4:
+							drum = "Bass Drum 1";
+							break;
+						case 5:
+							drum = "Low Tom";
+							break;
+						case 6:
+							drum = "High Tom";
+							break;
+						}
+						try {
+							ins = new DrumKit(1);
+							ins.playDrum(drum);
+							System.out.println("Playing " + drum);
+						} catch (Exception e) {
+							e.printStackTrace();
 						}
 					}
+					//					}
 				}
 			}
 		}
 	}
-
-
+	
+	private void changeOctave(int change) {
+		octave += change;
+	}
+	
 	public void onDisconnect(Controller controller) {
 		System.out.println("LEAP Disconnected");
 	}

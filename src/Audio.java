@@ -96,35 +96,18 @@ public class Audio {
 		synth.loadInstrument(instrument);
 		System.out.println("Changed instrument to "+instrument.getName()+".");
 		*/
-		switch (instrumentType) {
-		case "Kick":
-			channelNum = instruments.get("Kick")[0]; //channel num
-			currentPercussionInstrument = instruments.get("Kick")[1]; //current instrument
-			channel = synth.getChannels()[channelNum];
-			break;
-		case "Snare":
-			channelNum = instruments.get("Snare")[0];
-			currentPercussionInstrument = instruments.get("Snare")[1];
-			channel = synth.getChannels()[channelNum];
-			break;
-		case "Crash":
-			channelNum = instruments.get("Crash")[0];
-			currentPercussionInstrument = instruments.get("Crash")[1];
-			channel = synth.getChannels()[channelNum];
-			break;
-		case "HiHat":
-			channelNum = instruments.get("HiHat")[0];
-			currentPercussionInstrument = instruments.get("HiHat")[1];
-			channel = synth.getChannels()[channelNum];
-			break;
-		case "Grand Piano":
-			channelNum = instruments.get("Grand Piano")[0];
-			//currentPercussionInstrument = instruments.get("Grand Piano")[1];
-			channel = synth.getChannels()[channelNum];
-			break;
-		}
+		channelNum = instruments.get(instrumentType)[0]; //channel num
+		currentPercussionInstrument = instruments.get(instrumentType)[1]; //current instrument
+		channel = synth.getChannels()[channelNum];
 	}
 	public Audio() throws MidiUnavailableException {
+		init();
+	}
+	public Audio(String i) throws MidiUnavailableException {
+		init();
+		changeInstrument(i);
+	}
+	private void init() throws MidiUnavailableException {
 		synth = MidiSystem.getSynthesizer();
 		synth.open();
 		channel = synth.getChannels()[channelNum]; //set to piano
