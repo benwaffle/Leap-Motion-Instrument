@@ -1,4 +1,4 @@
-public interface Instrument {
+public interface LeapInstrument {
 	
 	public void playNote(String note, int octave) throws Exception;
 	

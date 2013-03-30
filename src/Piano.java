@@ -1,6 +1,6 @@
 import javax.sound.midi.MidiUnavailableException;
 
-public class Piano implements Instrument {
+public class Piano implements LeapInstrument {
 
 	private String name = "Grand Piano";
 	private Audio audio;
@@ -48,11 +48,11 @@ public class Piano implements Instrument {
 	}
 
 	public void playDrum(String drum) throws Exception{
-		
+		throw new NotADrumException(name + " is not a drum!");
 	}
 
 	public void playDrum(String drum, int vol) throws Exception {
-		throw new NotADrumExcpetion(name + " is not a drum!");
+		throw new NotADrumException(name + " is not a drum!");
 	}
 	
 	public String toString() {

@@ -1,7 +1,6 @@
 import javax.sound.midi.MidiUnavailableException;
 
-
-public class DrumKit implements Instrument {
+public class DrumKit implements LeapInstrument {
 
 	private String name = "Drum Kit";
 	private Audio audio;
@@ -56,6 +55,10 @@ public class DrumKit implements Instrument {
 
 	public int getChannel() {
 		return audio.channelNum;
+	}
+	
+	public String toString() {
+		return name;
 	}
 
 }

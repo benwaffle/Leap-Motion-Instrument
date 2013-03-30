@@ -113,15 +113,13 @@ public class Audio {
 		channel = synth.getChannels()[channelNum]; //set to piano
 		
 		//put in instrument data
-		int kick_data[] = {9,35}; //{channel,instrument_type}
-		instruments.put("Kick", kick_data);
-		int hihat_data[] = {9,42};
-		instruments.put("HiHat", hihat_data);
-		int snare_data[] = {9,40};
-		instruments.put("Snare", snare_data);
-		int crash_data[] = {9,55};
-		instruments.put("Crash", crash_data);
-		int piano_data[] = {0,0};
-		instruments.put("Grand Piano", piano_data);
+		instruments.put("Kick", new int[] {9, 35}); //{channel,instrument_type}
+		instruments.put("HiHat", new int[] {9, 42});
+		instruments.put("Snare", new int[] {9, 40});
+		instruments.put("Crash", new int[] {9, 55});
+		instruments.put("Floor Tom", new int[] {9, 41});
+		instruments.put("Low Tom", new int[] {9, 45});
+		instruments.put("High Tom", new int[] {9, 50});
+		instruments.put("Grand Piano", new int[] {0, 0});
 	}
 }

@@ -12,7 +12,7 @@ import javax.sound.midi.MidiUnavailableException;
  * drums: kick, snare, hihat, crash
  */
 
-public class LeapDrumPiano {
+public class MainClass {
 	public static void main(String[] args) throws MidiUnavailableException {
 		Lis lis = new Lis();
 		Controller con = new Controller();
@@ -34,7 +34,7 @@ public class LeapDrumPiano {
 
 class Lis extends Listener{
 	int octave = 4;
-	Instrument ins;
+	LeapInstrument ins;
 	Finger finger;
 	Hand hand;
 	//	float maxX=0,maxY=0,maxZ=0,minX=0,minY=0,minZ=0;
@@ -49,7 +49,7 @@ class Lis extends Listener{
 //	int[] tapAreas = new int[numTapAreas];
 	
 	
-	boolean drums = false; //false = piano
+	boolean drums = true; //false = piano
 
 	//overriding default listener methods
 	public void onInit(Controller controller){
@@ -107,7 +107,6 @@ class Lis extends Listener{
 							}
 							ins = new Piano(1);
 							ins.playNote(note, octave);
-							System.out.println(i);
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
@@ -127,7 +126,7 @@ class Lis extends Listener{
 							drum = "Crash";
 							break;
 						case 4:
-							drum = "Bass Drum 1";
+							drum = "Floor Tom";
 							break;
 						case 5:
 							drum = "Low Tom";
