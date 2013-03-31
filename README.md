@@ -1,8 +1,14 @@
 Leap Motion Instrument
 ======================
 
-Made by Ben Iofel, David Maginley, and Princeton Ferro
+People:
+* Ben Iofel
+* Princeton Ferro
+* David Maginley
+* Zach Kaplan
 
 Todo:
--add more instruments
--write own code to recognize press (currently using leap gesture lib)
+* Make good GUI
+* Fix lag: We think this is in `Audio.java` when the `playNote()` function is
+being called many times. Therefore we should be able to fix lag at the same
+time as making a `pressNote()` function and `releaseNote()` function
