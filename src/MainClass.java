@@ -38,7 +38,7 @@ class Lis extends Listener{
 	double volume = 1;												//volume from jslider
 	GUI gui;														//gui
 	double currentFingerX=0,currentFingerY=0,currentFingerZ=0;		//the finger's x,y, and z coordinates USE IN CANVAS
-
+	
 	//the variables for the different areas where the user can press keys
 	int xAxisMin = -200;
 	int xAxisMax = 200;
@@ -98,6 +98,7 @@ class Lis extends Listener{
 		volume = gui.slider.getValue()/100.0;		//update volume
 		ins.setVol(volume);
 		gui.visualizerPanel.repaint();
+		instrument = gui.comboBox.getSelectedItem().toString();
 		
 		currentFingerX = finger.tipPosition().getX();	//finger coordinate X
 		currentFingerY = finger.tipPosition().getY();	//finger coordinate Y
@@ -124,7 +125,7 @@ class Lis extends Listener{
 						}
 					} catch (MidiUnavailableException e) { e.printStackTrace(); } 
 				}
-				if(!instrument.equals("Drums")){									//if the instrument is not a drumkit and therefore doesn't use 7 notes of 
+				if(!instrument.equals("DrumKit")){									//if the instrument is not a drumkit and therefore doesn't use 7 notes of 
 					try{															//and therefore doesn't use 7 notes of different pitches
 						int note = 0;
 						switch(i) {													//get the note number for playNote()

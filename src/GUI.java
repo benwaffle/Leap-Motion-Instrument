@@ -5,7 +5,8 @@ public class GUI extends Thread{
 	JFrame frmLeapInstrument;
 	public JSlider slider;
 	public LeapVisualizerPanel visualizerPanel;
-
+	public JComboBox<String> comboBox;
+	
 	public static void main(String[] args) {
 		GUI window = new GUI();
 		window.frmLeapInstrument.setVisible(true);
@@ -36,7 +37,7 @@ public class GUI extends Thread{
 		lblVolume.setBounds(674, 10, 61, 16);
 		frmLeapInstrument.getContentPane().add(lblVolume);
 
-		JComboBox<String> comboBox = new JComboBox<String>();				//Dropdown instrument selection
+		comboBox = new JComboBox<String>();				//Dropdown instrument selection
 		comboBox.setBounds(421, 18, 175, 29);
 		comboBox.addItem("Piano");
 		comboBox.addItem("DrumKit");
