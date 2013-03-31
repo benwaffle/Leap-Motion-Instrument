@@ -9,14 +9,11 @@ import javax.sound.midi.MidiUnavailableException;
 
 public class MainClass {
 	public static void main(String[] args) throws MidiUnavailableException {
-		GUI window = new GUI();
-		window.frmLeapInstrument.setVisible(true);
-
 		Lis lis = new Lis();
 		Controller con = new Controller();
 
 		con.addListener(lis);
-
+		
 		System.out.println("Press any key to quit...");
 		try {
 			System.in.read();
@@ -38,8 +35,9 @@ class Lis extends Listener{
 	Thread t;			//thread for calibration
 	ArrayList<Float> calibratingValues = new ArrayList<Float>();	//arraylist to hold y values, which are then averaged to calibratedY
 	String state = "none";											//application state
-
-	float currentFingerX=0,currentFingerY=0,currentFingerZ=0;		//the finger's x,y, and z coordinates USE IN CANVAS
+	double volume = 1;												//volume from jslider
+	GUI gui;														//gui
+	double currentFingerX=0,currentFingerY=0,currentFingerZ=0;		//the finger's x,y, and z coordinates USE IN CANVAS
 
 	//the variables for the different areas where the user can press keys
 	int xAxisMin = -200;
@@ -56,23 +54,27 @@ class Lis extends Listener{
 
 	public void onInit(Controller controller){
 		System.out.println("LEAP initialized");
+		gui = new GUI();
+		gui.frmLeapInstrument.setVisible(true);
 	}
 
 	public void onConnect(Controller controller) {	//when the leap is connected
 		System.out.println("LEAP Connected");
 		try {
-			ins = new Piano(1);						//initialize the ins instrument
+			ins = new Piano(volume);				//initialize the ins instrument
 		} catch (MidiUnavailableException e1) {
 			e1.printStackTrace();
 		}
 		t = new Thread(new Runnable() {				//thread to calibrate Y value
 			@Override
 			public void run() {
-				System.out.println("calibrating in\n3...");
+				//counter
+				System.out.println("calibrating in 3...");
 				try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace(); }
 				System.out.println("2...");
 				try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace(); }
 				System.out.println("1...");
+				
 				state = "calibrate";				//start calibrating
 				try { Thread.sleep(2000); } catch (InterruptedException e) { e.printStackTrace(); }
 				//do after 2000 milliseconds
@@ -92,26 +94,32 @@ class Lis extends Listener{
 
 	public void onFrame(Controller controller){
 		frame = controller.frame();					//update the frame object
-		finger = frame.fingers().get(0);			//get first finger
+		finger = frame.fingers().get(0);			//update finger
+		volume = gui.slider.getValue()/100.0;		//update volume
+		ins.setVol(volume);
+		gui.visualizerPanel.repaint();
+		
+		currentFingerX = finger.tipPosition().getX();	//finger coordinate X
+		currentFingerY = finger.tipPosition().getY();	//finger coordinate Y
+//		currentFingerZ = finger.tipPosition().getZ();	//finger coordinate Z
 
+		gui.visualizerPanel.setFingerX((int)map((long)currentFingerX, xAxisMin, xAxisMax, 0, 800));
+		gui.visualizerPanel.setFingerY(520-(int)map((long)currentFingerY, 20, 250, 0, 520));
+		
 		if(state.equals("calibrate")){																					//if we are calibrating
 			if(frame.fingers().count() != 1) System.out.println("wrong number of fingers. please only show 1");			//only allow 1 finger
 			else calibratingValues.add(finger.tipPosition().getY());													//if we only have 1 finger, add the y value to the arraylist
-		} else if (state.equals("detectTaps") && !frame.fingers().empty()){												//else if we are running the main loop & we have some fingers
-			finger = frame.fingers().get(0);									//update finger object
-			currentFingerX = finger.tipPosition().getX();						//finger coordinate X
-			currentFingerY = finger.tipPosition().getY();						//finger coordinate Y
-			currentFingerZ = finger.tipPosition().getZ();						//finger coordinate Z
+		} else if (state.equals("detectTaps") && !frame.fingers().empty()){
 			if(calibratedY-currentFingerY>30){									//if the finger goes 30 units below the calibrated (default) value
 				int i = ((int)currentFingerX + xAxisMax) / tapAreaSize;			//get the index of the area where the finger is "pressing" down
 				if(!ins.getClass().getName().equals(instrument)){				//if the ins object is different that the instrument variable
 					try{
 						switch(instrument){										//change the instrument
 						case "Piano":
-							ins = new Piano(1);
+							ins = new Piano(volume);
 							break;
 						case "DrumKit":
-							ins = new DrumKit(1);
+							ins = new DrumKit(volume);
 							break;
 						}
 					} catch (MidiUnavailableException e) { e.printStackTrace(); } 
@@ -164,6 +172,8 @@ class Lis extends Listener{
 						e.printStackTrace();
 					}
 				}
+			} else {
+				//code where !press
 			}
 		}
 	}
@@ -174,5 +184,9 @@ class Lis extends Listener{
 
 	public void onDisconnect(Controller controller) {
 		System.out.println("LEAP Disconnected");
+	}
+	
+	public long map(long x, long in_min, long in_max, long out_min, long out_max) {
+	  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 	}
 }

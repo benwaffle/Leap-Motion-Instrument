@@ -4,13 +4,13 @@ public class Piano implements LeapInstrument {
 
 	private String name = "Grand Piano";
 	private Audio audio;
-	private int vol = 0;
+	private double vol = 0;
 	
 	public Piano() throws MidiUnavailableException {
 		init();
 	}
 	
-	public Piano(int vol) throws MidiUnavailableException {
+	public Piano(double vol) throws MidiUnavailableException {
 		init();
 		setVol(vol);
 	}
@@ -23,7 +23,7 @@ public class Piano implements LeapInstrument {
 		audio.playNote(note, octave, vol);
 	}
 	
-	public void playNote(String note, int octave, int vol) throws Exception {
+	public void playNote(String note, int octave, double vol) throws Exception {
 		audio.playNote(note, octave, vol);
 	}
 	
@@ -31,15 +31,15 @@ public class Piano implements LeapInstrument {
 		audio.playNote(note, octave, vol);
 	}
 
-	public void playNote(int note, int octave, int vol) throws Exception {
+	public void playNote(int note, int octave, double vol) throws Exception {
 		audio.playNote(note, octave, vol);
 	}
 	
-	public int getVol() {
+	public double getVol() {
 		return vol;
 	}
 
-	public int setVol(int vol) {
+	public double setVol(double vol) {
 		return this.vol = vol;
 	}
 
@@ -51,7 +51,7 @@ public class Piano implements LeapInstrument {
 		throw new NotADrumException(name + " is not a drum!");
 	}
 
-	public void playDrum(String drum, int vol) throws Exception {
+	public void playDrum(String drum, double vol) throws Exception {
 		throw new NotADrumException(name + " is not a drum!");
 	}
 	

@@ -4,13 +4,13 @@ public class DrumKit implements LeapInstrument {
 
 	private String name = "Drum Kit";
 	private Audio audio;
-	private int vol = 0;
+	private double vol = 0;
 	
 	public DrumKit() throws MidiUnavailableException {
 		init();
 	}
 	
-	public DrumKit(int vol) throws MidiUnavailableException {
+	public DrumKit(double vol) throws MidiUnavailableException {
 		init();
 		setVol(vol);
 	}
@@ -23,7 +23,7 @@ public class DrumKit implements LeapInstrument {
 		throw new NotAPitchedInstrumentException(name + " is not a pitched Instrument!");
 	}
 
-	public void playNote(String note, int octave, int vol) throws Exception {
+	public void playNote(String note, int octave, double vol) throws Exception {
 		throw new NotAPitchedInstrumentException(name + " is not a pitched Instrument!");
 	}
 	
@@ -31,7 +31,7 @@ public class DrumKit implements LeapInstrument {
 		throw new NotAPitchedInstrumentException(name + " is not a pitched Instrument!");
 	}
 
-	public void playNote(int note, int octave, int vol) throws Exception {
+	public void playNote(int note, int octave, double vol) throws Exception {
 		throw new NotAPitchedInstrumentException(name + " is not a pitched Instrument!");
 	}
 
@@ -40,16 +40,16 @@ public class DrumKit implements LeapInstrument {
 		audio.playDrum(vol);
 	}
 
-	public void playDrum(String drum, int vol) throws Exception {
+	public void playDrum(String drum, double vol) throws Exception {
 		audio.changeInstrument(drum);
 		audio.playDrum(vol);
 	}
 
-	public int getVol() {
+	public double getVol() {
 		return vol;
 	}
 
-	public int setVol(int vol) {
+	public double setVol(double vol) {
 		return this.vol = vol;
 	}
 
