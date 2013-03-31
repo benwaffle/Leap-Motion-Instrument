@@ -1,72 +1,71 @@
 /*
- * Created Feb 23, 2012
- * (C) 2012 Ben Iofel, David Maginley, and Princeton Ferro
- * Made @ Monthly Music Hackathon in NYC
+ * (C) 2012 Ben Iofel, David Maginley, Princeton Ferro, and Zach Kaplan
  */
 
 import com.leapmotion.leap.*;
 import java.io.*;
 import java.util.ArrayList;
-
 import javax.sound.midi.MidiUnavailableException;
-
-/*
- * drums: kick, snare, hihat, crash
- */
 
 public class MainClass {
 	public static void main(String[] args) throws MidiUnavailableException {
+		GUI window = new GUI();
+		window.frmLeapInstrument.setVisible(true);
+
 		Lis lis = new Lis();
 		Controller con = new Controller();
 
 		con.addListener(lis);
 
-		lis.audio = new Audio();
-		
 		System.out.println("Press any key to quit...");
 		try {
 			System.in.read();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 		System.out.println("quitting");
 		con.removeListener(lis);
 	}
 }
 
 class Lis extends Listener{
-	int octave = 4;
-	LeapInstrument ins;
-	Finger finger;
-	Hand hand;
-	Frame frame;
-	int calibratedY;
-	Thread t;
-	ArrayList<Float> calibratingValues = new ArrayList<Float>();
-	boolean calibrating = false, detectingTaps = false;
+	int octave = 4;		//default octave
+	LeapInstrument ins;	//instrument object
+	Finger finger;		//main finger that is pressing keys
+	Frame frame;		//Leap frame
+	int calibratedY;	//calibrated Y value
+	Thread t;			//thread for calibration
+	ArrayList<Float> calibratingValues = new ArrayList<Float>();	//arraylist to hold y values, which are then averaged to calibratedY
+	String state = "none";											//application state
 
-	float currentFingerX=0,currentFingerY=0,currentFingerZ=0;
-	public Audio audio;
+	float currentFingerX=0,currentFingerY=0,currentFingerZ=0;		//the finger's x,y, and z coordinates USE IN CANVAS
 
-	//	instrument X axis mapping vars
+	//the variables for the different areas where the user can press keys
 	int xAxisMin = -200;
 	int xAxisMax = 200;
 	int numTapAreas = 7;
-	int tapAreaSize = (xAxisMax-xAxisMin)/numTapAreas;	
+	int tapAreaSize = (xAxisMax-xAxisMin)/numTapAreas;
 
-	boolean drums = false; //false = piano
+	String instrument = "Piano";	//default instrument
+	/*
+	 * options:
+	 * -Piano
+	 * -DrumKit
+	 */
 
-	//overriding default listener methods
 	public void onInit(Controller controller){
 		System.out.println("LEAP initialized");
 	}
 
-	public void onConnect(Controller controller) {
+	public void onConnect(Controller controller) {	//when the leap is connected
 		System.out.println("LEAP Connected");
-		controller.enableGesture(Gesture.Type.TYPE_KEY_TAP); //enable only key tap gesture
-		//calibrate Y value 
-		t = new Thread(new Runnable() {
+		try {
+			ins = new Piano(1);						//initialize the ins instrument
+		} catch (MidiUnavailableException e1) {
+			e1.printStackTrace();
+		}
+		t = new Thread(new Runnable() {				//thread to calibrate Y value
 			@Override
 			public void run() {
 				System.out.println("calibrating in\n3...");
@@ -74,52 +73,53 @@ class Lis extends Listener{
 				System.out.println("2...");
 				try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace(); }
 				System.out.println("1...");
-				calibrating = true;
+				state = "calibrate";				//start calibrating
 				try { Thread.sleep(2000); } catch (InterruptedException e) { e.printStackTrace(); }
 				//do after 2000 milliseconds
-				int sum = 0, size = calibratingValues.size();
-				for(int i=0;i<size;i++) sum += calibratingValues.get(i);	//add the y values
-				if(size < 100){							//too few y values
-					System.out.println("not enough y values. please try again");
+				int sum = 0, size = calibratingValues.size();	//sum --> sum of y values; size --> size of arraylist
+				for(int i=0;i<size;i++) sum += calibratingValues.get(i);	//add up the y values
+				calibratedY = sum/size;										//get the average of y values
+				System.out.println("calibrated Y: " + calibratedY);
+				if(calibratedY < 100){										//if the calibrated Y value is too low (user should move finger higher)
+					System.out.println("calibrated Y value is too low. please try again");
 					System.exit(0);
-				} else {
-					calibratedY = sum/size;				//avg of y values
-					System.out.println("calibrated Y: " + calibratedY);
-					if(calibratedY < 100){
-						System.out.println("calibrated Y value is too low. please try again");
-						System.exit(0);
-					}
-					calibrating = false;
-					detectingTaps = true;
 				}
+				state = "detectTaps";				//change state from calibrating to main loop. onFrame() will detect this and stop calibrating
 			}
 		});
-		t.start();
-		System.out.println("calibrated y: " + calibratedY);
+		t.start();									//start this thread
 	}
 
 	public void onFrame(Controller controller){
-		frame = controller.frame();
-		GestureList ges = frame.gestures();
-		finger = frame.fingers().get(0);
-		
-		if(calibrating){
-			if(frame.fingers().count() != 1) System.out.println("wrong number of fingers. please only show 1");
-			else calibratingValues.add(finger.tipPosition().getY());
-		} else if (detectingTaps && !frame.fingers().empty()){
-			// MAIN LOOP
-			finger = frame.fingers().get(0);
-			currentFingerX = finger.tipPosition().getX();
-			currentFingerY = finger.tipPosition().getY();
-			currentFingerZ = finger.tipPosition().getZ();
-			if(calibratedY-finger.tipPosition().getY()>30){ // ON PRESS
-				System.out.println("tap detected");
-				float keyPressXPosition = finger.tipPosition().getX();
-				int i = ((int)keyPressXPosition + xAxisMax) / tapAreaSize;
-				if(!drums){
+		frame = controller.frame();					//update the frame object
+		finger = frame.fingers().get(0);			//get first finger
+
+		if(state.equals("calibrate")){																					//if we are calibrating
+			if(frame.fingers().count() != 1) System.out.println("wrong number of fingers. please only show 1");			//only allow 1 finger
+			else calibratingValues.add(finger.tipPosition().getY());													//if we only have 1 finger, add the y value to the arraylist
+		} else if (state.equals("detectTaps") && !frame.fingers().empty()){												//else if we are running the main loop & we have some fingers
+			finger = frame.fingers().get(0);									//update finger object
+			currentFingerX = finger.tipPosition().getX();						//finger coordinate X
+			currentFingerY = finger.tipPosition().getY();						//finger coordinate Y
+			currentFingerZ = finger.tipPosition().getZ();						//finger coordinate Z
+			if(calibratedY-currentFingerY>30){									//if the finger goes 30 units below the calibrated (default) value
+				int i = ((int)currentFingerX + xAxisMax) / tapAreaSize;			//get the index of the area where the finger is "pressing" down
+				if(!ins.getClass().getName().equals(instrument)){				//if the ins object is different that the instrument variable
 					try{
+						switch(instrument){										//change the instrument
+						case "Piano":
+							ins = new Piano(1);
+							break;
+						case "DrumKit":
+							ins = new DrumKit(1);
+							break;
+						}
+					} catch (MidiUnavailableException e) { e.printStackTrace(); } 
+				}
+				if(!instrument.equals("Drums")){									//if the instrument is not a drumkit and therefore doesn't use 7 notes of 
+					try{															//and therefore doesn't use 7 notes of different pitches
 						int note = 0;
-						switch(i) {
+						switch(i) {													//get the note number for playNote()
 						case 0: note = 0; break;	//C
 						case 1: note = 2; break;	//D
 						case 2: note = 4; break;	//E
@@ -128,14 +128,13 @@ class Lis extends Listener{
 						case 5: note = 9; break;	//A
 						case 6: note = 11; break;	//B
 						}
-						ins = new Piano(1);
-						ins.playNote(note, octave);
+						ins.playNote(note, octave);				//play the note
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
-				} else {
+				} else {										//if it is a drum
 					String drum = "";
-					switch(i) {
+					switch(i) {									//get the type of drum
 					case 0:
 						drum = "Kick";
 						break;
@@ -159,8 +158,7 @@ class Lis extends Listener{
 						break;
 					}
 					try {
-						ins = new DrumKit(1);
-						ins.playDrum(drum);
+						ins.playDrum(drum);			//play the drum
 						System.out.println("Playing " + drum);
 					} catch (Exception e) {
 						e.printStackTrace();
@@ -170,7 +168,7 @@ class Lis extends Listener{
 		}
 	}
 
-	private void changeOctave(int change) {
+	private void changeOctave(int change) {		//TODO: implement 4 finger swipe right or left to change octave  
 		octave += change;
 	}
 
