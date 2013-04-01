@@ -1,12 +1,13 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.geom.Point2D;
 
 public class GUI extends Thread{
 	JFrame frmLeapInstrument;
 	public JSlider slider;
 	public LeapVisualizerPanel visualizerPanel;
 	public JComboBox<String> comboBox;
-	
+
 	public static void main(String[] args) {
 		GUI window = new GUI();
 		window.frmLeapInstrument.setVisible(true);
@@ -29,7 +30,7 @@ public class GUI extends Thread{
 		lblLeapInstrument.setBounds(29, 6, 187, 45);
 		frmLeapInstrument.getContentPane().add(lblLeapInstrument);
 
-	slider = new JSlider(0, 100, 100);										//JSlider
+		slider = new JSlider(0, 100, 100);										//JSlider
 		slider.setBounds(604, 22, 190, 29);
 		frmLeapInstrument.getContentPane().add(slider);
 
@@ -57,13 +58,25 @@ class LeapVisualizerPanel extends JComponent{								//component for drawing stu
 
 	@Override
 	public void paintComponent(Graphics g){
-		g.setColor(Color.white);
-		g.fillRect(0, 0, 800, 521);
+		Graphics2D g2d = (Graphics2D)g;
 
-		g.setColor(Color.cyan);
-		g.fillOval(fingerX, fingerY, 40, 40);
+		g2d.setColor(Color.white);
+		g2d.fillRect(0, 0, 800, 520);
+
+		Point2D center = new Point2D.Float(20,20);
+		float radius = 40;
+		float[] distribution = {0.0f, 1.0f};
+		float[] hsbcolor = Color.RGBtoHSB(255, 220, 178, null);
+		float[] hsbcolor2 = Color.RGBtoHSB(231, 158, 109, null);
+		Color[] colors = {Color.getHSBColor(hsbcolor[0], hsbcolor[1], hsbcolor[2]),Color.getHSBColor(hsbcolor2[0], hsbcolor2[1], hsbcolor2[2])};
+		RadialGradientPaint gradient = new RadialGradientPaint(center,radius,distribution,colors);
+
+		if(!(fingerX==0 && fingerY==0)){
+			g2d.setPaint(gradient);
+			g2d.fillOval(fingerX, fingerY, 40, 40);
+		}
 	}
-	
+
 	public int getFingerX() {
 		return fingerX;
 	}

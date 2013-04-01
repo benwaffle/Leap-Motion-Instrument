@@ -82,11 +82,12 @@ class Lis extends Listener{
 				for(int i=0;i<size;i++) sum += calibratingValues.get(i);	//add up the y values
 				calibratedY = sum/size;										//get the average of y values
 				System.out.println("calibrated Y: " + calibratedY);
+				state = "detectTaps";				//change state from calibrating to main loop. onFrame() will detect this and stop calibrating
 				if(calibratedY < 100){										//if the calibrated Y value is too low (user should move finger higher)
 					System.out.println("calibrated Y value is too low. please try again");
 					System.exit(0);
 				}
-				state = "detectTaps";				//change state from calibrating to main loop. onFrame() will detect this and stop calibrating
+				
 			}
 		});
 		t.start();									//start this thread
