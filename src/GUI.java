@@ -6,9 +6,9 @@ public class GUI extends Thread {
 	private boolean running = true;
 	public JFrame window;
 	public String windowTitle = "Leap Instrument Demo";
-	private int[] d = {1000, 700};
-	private int[] content_d = new int[2]; //inside canvas content
-	private int top_height = 250;
+	private int[] windowDimensions = {1000, 700};
+	private int[] contentDimensions = new int[2]; //inside canvas content
+	private int guiControlsOffset = 250;
 	private Graphics2D g2d;
 	private Graphics2D b_g2d;
 	private Canvas canvas;
@@ -21,17 +21,17 @@ public class GUI extends Thread {
 		window = new JFrame(windowTitle);
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		//set window dimensions
-		window.setBounds((screen.width-d[0])/2,(screen.height-d[1])/2,d[0],d[1]);
+		window.setBounds((screen.width-windowDimensions[0])/2,(screen.height-windowDimensions[1])/2,windowDimensions[0],windowDimensions[1]);
 		
 		canvas = new Canvas(cfg);
-		canvas.setBounds(0, top_height, 30, window.getSize().height-window.getInsets().top-window.getInsets().bottom-top_height);
+		canvas.setBounds(0, guiControlsOffset, 30, window.getSize().height-window.getInsets().top-window.getInsets().bottom-guiControlsOffset);
 		window.add(canvas, 0);
 		window.setVisible(true);
 		window.setResizable(true);
 		
-		content_d[0] = canvas.getSize().width;
-		content_d[1] = canvas.getSize().height;
-		background = createBufferedImage(content_d[0],content_d[1],false);
+		contentDimensions[0] = canvas.getSize().width;
+		contentDimensions[1] = canvas.getSize().height;
+		background = createBufferedImage(contentDimensions[0],contentDimensions[1],false);
 		canvas.createBufferStrategy(2);
 		
 		do {
@@ -89,7 +89,7 @@ public class GUI extends Thread {
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		g.setColor(Color.black);
-		g.fillRect(0, 0, content_d[0],  content_d[1]);
+		g.fillRect(0, 0, contentDimensions[0],  contentDimensions[1]);
 		//TODO: add more code below:
 	}
 }
