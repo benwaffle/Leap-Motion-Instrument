@@ -16,6 +16,7 @@ public class GUI extends Thread {
 	private BufferedImage background; //background buffered image
 	private GraphicsConfiguration cfg = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration();
 	private Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
+	//private int[][] fingers;
 	public GUI() {
 		window = new JFrame(windowTitle);
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -66,7 +67,7 @@ public class GUI extends Thread {
 	public void run() { //thread run
 		b_g2d = (Graphics2D) background.getGraphics();
 		main: while (running) {
-			update();
+			update(); //non-rendering update
 			do {
 				if (!running) break main;
 				Graphics2D bg = getBuffer(); //get buffered graphics
@@ -75,6 +76,12 @@ public class GUI extends Thread {
 			} while (!screenUpdate()); //update screen 
 		}
 		window.dispose(); //free resources
+	}
+	public void instrumentUpdate(Instrument instrument) {
+		/* update information based on instrument, for use later
+		 * in update()
+		 */
+		
 	}
 	public void update() {
 	}
